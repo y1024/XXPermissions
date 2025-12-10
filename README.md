@@ -63,7 +63,7 @@ android {
 
 dependencies {
     // 设备兼容框架：https://github.com/getActivity/DeviceCompat
-    implementation 'com.github.getActivity:DeviceCompat:2.3'
+    implementation 'com.github.getActivity:DeviceCompat:2.5'
     // 权限请求框架：https://github.com/getActivity/XXPermissions
     implementation 'com.github.getActivity:XXPermissions:28.0'
 }
