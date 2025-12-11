@@ -148,21 +148,18 @@ XXPermissions.with(this)
     .permission(PermissionLists.getCameraPermission())
     // Setting does not trigger error detection mechanism (local setting)
     //.unchecked()
-    .request(object : OnPermissionCallback {
-
-        override fun onResult(grantedList: MutableList<IPermission>, deniedList: MutableList<IPermission>) {
-            val allGranted = deniedList.isEmpty()
-            if (!allGranted) {
-                // Determine whether the permissions that failed requests have been checked by the user to no longer ask
-                val doNotAskAgain = XXPermissions.isDoNotAskAgainPermissions(activity, deniedList)
-                // The logic for failing to handle permission requests here
-                // ......
-                return
-            }
-            // The logic for handling permission requests here is successful
+    .request { grantedList, deniedList ->
+        val allGranted = deniedList.isEmpty()
+        if (!allGranted) {
+            // Determine whether the permissions that failed requests have been checked by the user to no longer ask
+            val doNotAskAgain = XXPermissions.isDoNotAskAgainPermissions(activity, deniedList)
+            // The logic for failing to handle permission requests here
             // ......
+            return@request
         }
-    })
+        // The logic for handling permission requests here is successful
+        // ......
+    }
 ```
 
 #### Introduction to other APIs of the framework
