@@ -126,21 +126,17 @@ XXPermissions.with(this)
     .permission(PermissionLists.getCameraPermission())
     // 设置不触发错误检测机制（局部设置）
     //.unchecked()
-    .request(new OnPermissionCallback() {
-
-        @Override
-        public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-            boolean allGranted = deniedList.isEmpty();
-            if (!allGranted) {
-                // 判断请求失败的权限是否被用户勾选了不再询问的选项
-                boolean doNotAskAgain = XXPermissions.isDoNotAskAgainPermissions(activity, deniedList);
-                // 在这里处理权限请求失败的逻辑
-                ......
-                return;
-            }
-            // 在这里处理权限请求成功的逻辑
+    .request((grantedList, deniedList) -> {
+        boolean allGranted = deniedList.isEmpty();
+        if (!allGranted) {
+            // 判断请求失败的权限是否被用户勾选了不再询问的选项
+            boolean doNotAskAgain = XXPermissions.isDoNotAskAgainPermissions(activity, deniedList);
+            // 在这里处理权限请求失败的逻辑
             ......
+            return;
         }
+        // 在这里处理权限请求成功的逻辑
+        ......
     });
 ```
 

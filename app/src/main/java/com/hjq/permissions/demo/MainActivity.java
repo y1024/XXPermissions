@@ -160,16 +160,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getCameraPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_group_permission) {
@@ -180,16 +176,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getWriteCalendarPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_location_permission) {
@@ -201,16 +193,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getAccessBackgroundLocationPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_health_permission) {
@@ -235,56 +223,52 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                         .permission(PermissionLists.getReadHealthDataInBackgroundPermission())
                         .interceptor(new PermissionInterceptor())
                         .description(new PermissionDescription())
-                        .request(new OnPermissionCallback() {
+                        .request((grantedList, deniedList) -> {
+                            boolean allGranted = deniedList.isEmpty();
+                            if (!allGranted) {
+                                return;
+                            }
+                            showGrantedPermissionsToast(grantedList);
 
-                            @Override
-                            public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                                boolean allGranted = deniedList.isEmpty();
-                                if (!allGranted) {
-                                    return;
-                                }
-                                showGrantedPermissionsToast(grantedList);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                HealthConnectManager healthConnectManager = (HealthConnectManager) getSystemService(Context.HEALTHCONNECT_SERVICE);
+                                ZonedDateTime lastDay = ZonedDateTime.now()
+                                    .truncatedTo(ChronoUnit.DAYS)
+                                    .minusDays(1)
+                                    .withHour(12);
+                                ZonedDateTime firstDay = lastDay.minusDays(7);
 
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                    HealthConnectManager healthConnectManager = (HealthConnectManager) getSystemService(Context.HEALTHCONNECT_SERVICE);
-                                    ZonedDateTime lastDay = ZonedDateTime.now()
-                                        .truncatedTo(ChronoUnit.DAYS)
-                                        .minusDays(1)
-                                        .withHour(12);
-                                    ZonedDateTime firstDay = lastDay.minusDays(7);
+                                TimeRangeFilter timeRangeFilter = new TimeInstantRangeFilter.Builder()
+                                    .setStartTime(firstDay.toInstant())
+                                    .setEndTime(lastDay.toInstant())
+                                    .build();
 
-                                    TimeRangeFilter timeRangeFilter = new TimeInstantRangeFilter.Builder()
-                                        .setStartTime(firstDay.toInstant())
-                                        .setEndTime(lastDay.toInstant())
-                                        .build();
+                                ReadRecordsRequest<HeartRateRecord> readRecordsRequest = new ReadRecordsRequestUsingFilters.Builder<>(
+                                    HeartRateRecord.class)
+                                    .setTimeRangeFilter(timeRangeFilter)
+                                    .setAscending(false)
+                                    .build();
 
-                                    ReadRecordsRequest<HeartRateRecord> readRecordsRequest = new ReadRecordsRequestUsingFilters.Builder<>(
-                                        HeartRateRecord.class)
-                                        .setTimeRangeFilter(timeRangeFilter)
-                                        .setAscending(false)
-                                        .build();
+                                healthConnectManager.readRecords(readRecordsRequest, Executors.newSingleThreadExecutor(),
+                                    new OutcomeReceiver<ReadRecordsResponse<HeartRateRecord>, HealthConnectException>() {
 
-                                    healthConnectManager.readRecords(readRecordsRequest, Executors.newSingleThreadExecutor(),
-                                        new OutcomeReceiver<ReadRecordsResponse<HeartRateRecord>, HealthConnectException>() {
+                                        @Override
+                                        public void onResult(ReadRecordsResponse<HeartRateRecord> result) {
+                                            Log.i("XXPermissions", "获取到的健康数据数量为：" + result.getRecords().size());
+                                        }
 
-                                            @Override
-                                            public void onResult(ReadRecordsResponse<HeartRateRecord> result) {
-                                                Log.i("XXPermissions", "获取到的健康数据数量为：" + result.getRecords().size());
-                                            }
-
-                                            @Override
-                                            public void onError(@NonNull HealthConnectException e) {
-                                                Log.e("XXPermissions", "获取健康数据失败", e);
-                                            }
-                                        });
-                                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-                                    SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-                                    Sensor heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-                                    if (heartRateSensor != null) {
-                                        Log.i("XXPermissions", "获取心率传感器成功");
-                                    } else {
-                                        Log.i("XXPermissions", "获取心率传感器失败");
-                                    }
+                                        @Override
+                                        public void onError(@NonNull HealthConnectException e) {
+                                            Log.e("XXPermissions", "获取健康数据失败", e);
+                                        }
+                                    });
+                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+                                SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+                                Sensor heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+                                if (heartRateSensor != null) {
+                                    Log.i("XXPermissions", "获取心率传感器成功");
+                                } else {
+                                    Log.i("XXPermissions", "获取心率传感器失败");
                                 }
                             }
                         });
@@ -297,17 +281,13 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getActivityRecognitionPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
-                        addCountStepListener();
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
+                    addCountStepListener();
                 });
 
         } else if (viewId == R.id.btn_main_request_bluetooth_permission) {
@@ -318,29 +298,21 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 toast(getString(R.string.demo_android_12_bluetooth_permission_hint));
             }
 
-            view.postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    XXPermissions.with(MainActivity.this)
-                        .permission(PermissionLists.getBluetoothScanPermission())
-                        .permission(PermissionLists.getBluetoothConnectPermission())
-                        .permission(PermissionLists.getBluetoothAdvertisePermission())
-                        .interceptor(new PermissionInterceptor())
-                        .description(new PermissionDescription())
-                        .request(new OnPermissionCallback() {
-
-                            @Override
-                            public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                                boolean allGranted = deniedList.isEmpty();
-                                if (!allGranted) {
-                                    return;
-                                }
-                                showGrantedPermissionsToast(grantedList);
-                            }
-                        });
-                }
-            }, delayMillis);
+            view.postDelayed(() ->
+                XXPermissions.with(MainActivity.this)
+                    .permission(PermissionLists.getBluetoothScanPermission())
+                    .permission(PermissionLists.getBluetoothConnectPermission())
+                    .permission(PermissionLists.getBluetoothAdvertisePermission())
+                    .interceptor(new PermissionInterceptor())
+                    .description(new PermissionDescription())
+                    .request((grantedList, deniedList) -> {
+                        boolean allGranted = deniedList.isEmpty();
+                        if (!allGranted) {
+                            return;
+                        }
+                        showGrantedPermissionsToast(grantedList);
+                    })
+            ,  delayMillis);
 
         } else if (viewId == R.id.btn_main_request_wifi_devices_permission) {
 
@@ -350,27 +322,19 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 toast(getString(R.string.demo_android_13_wifi_permission_hint));
             }
 
-            view.postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    XXPermissions.with(MainActivity.this)
-                        .permission(PermissionLists.getNearbyWifiDevicesPermission())
-                        .interceptor(new PermissionInterceptor())
-                        .description(new PermissionDescription())
-                        .request(new OnPermissionCallback() {
-
-                            @Override
-                            public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                                boolean allGranted = deniedList.isEmpty();
-                                if (!allGranted) {
-                                    return;
-                                }
-                                showGrantedPermissionsToast(grantedList);
-                            }
-                        });
-                }
-            }, delayMillis);
+            view.postDelayed(() ->
+                XXPermissions.with(MainActivity.this)
+                    .permission(PermissionLists.getNearbyWifiDevicesPermission())
+                    .interceptor(new PermissionInterceptor())
+                    .description(new PermissionDescription())
+                    .request((grantedList, deniedList) -> {
+                        boolean allGranted = deniedList.isEmpty();
+                        if (!allGranted) {
+                            return;
+                        }
+                        showGrantedPermissionsToast(grantedList);
+                    })
+            , delayMillis);
 
         } else if (viewId == R.id.btn_main_request_read_media_location_information_permission) {
 
@@ -380,43 +344,30 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 toast(getString(R.string.demo_android_10_read_media_location_permission_hint));
             }
 
-            view.postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    XXPermissions.with(MainActivity.this)
-                        // 申请 ACCESS_MEDIA_LOCATION 的前提条件：
-                        // 1. 如果 targetSdk >= 33，有两种方案选择（二选一）：
-                        //    a. 申请 READ_MEDIA_IMAGES 或 READ_MEDIA_VIDEO 权限，需要注意的点是
-                        //       如果是在 Android 14 申请，只能选择允许访问全部的照片和视频，不能选择部分
-                        //    b. 申请 MANAGE_EXTERNAL_STORAGE 权限
-                        // 2. 如果 targetSdk < 33，，有两种方案选择（二选一）：
-                        //    a. 则添加 READ_EXTERNAL_STORAGE
-                        //    b. MANAGE_EXTERNAL_STORAGE 二选一
-                        .permission(PermissionLists.getReadMediaImagesPermission())
-                        .permission(PermissionLists.getReadMediaVideoPermission())
-                        .permission(PermissionLists.getAccessMediaLocationPermission())
-                        .interceptor(new PermissionInterceptor())
-                        .description(new PermissionDescription())
-                        .request(new OnPermissionCallback() {
-
-                            @Override
-                            public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                                boolean allGranted = deniedList.isEmpty();
-                                if (!allGranted) {
-                                    return;
-                                }
-                                showGrantedPermissionsToast(grantedList);
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        getAllImagesFromGallery(true);
-                                    }
-                                }).start();
-                            }
-                        });
-                }
-            }, delayMillis);
+            view.postDelayed(() ->
+                XXPermissions.with(MainActivity.this)
+                    // 申请 ACCESS_MEDIA_LOCATION 的前提条件：
+                    // 1. 如果 targetSdk >= 33，有两种方案选择（二选一）：
+                    //    a. 申请 READ_MEDIA_IMAGES 或 READ_MEDIA_VIDEO 权限，需要注意的点是
+                    //       如果是在 Android 14 申请，只能选择允许访问全部的照片和视频，不能选择部分
+                    //    b. 申请 MANAGE_EXTERNAL_STORAGE 权限
+                    // 2. 如果 targetSdk < 33，，有两种方案选择（二选一）：
+                    //    a. 则添加 READ_EXTERNAL_STORAGE
+                    //    b. MANAGE_EXTERNAL_STORAGE 二选一
+                    .permission(PermissionLists.getReadMediaImagesPermission())
+                    .permission(PermissionLists.getReadMediaVideoPermission())
+                    .permission(PermissionLists.getAccessMediaLocationPermission())
+                    .interceptor(new PermissionInterceptor())
+                    .description(new PermissionDescription())
+                    .request((grantedList, deniedList) -> {
+                        boolean allGranted = deniedList.isEmpty();
+                        if (!allGranted) {
+                            return;
+                        }
+                        showGrantedPermissionsToast(grantedList);
+                        new Thread(() -> getAllImagesFromGallery(true)).start();
+                    })
+            , delayMillis);
 
         } else if (viewId == R.id.btn_main_request_read_media_permission) {
 
@@ -426,35 +377,27 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 toast(getString(R.string.demo_android_13_read_media_permission_hint));
             }
 
-            view.postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    XXPermissions.with(MainActivity.this)
-                        // 不适配分区存储应该这样写
-                        //.permission(PermissionLists.getManageExternalStoragePermission())
-                        // 适配分区存储应该这样写
-                        .permission(PermissionLists.getReadMediaImagesPermission())
-                        .permission(PermissionLists.getReadMediaVideoPermission())
-                        .permission(PermissionLists.getReadMediaAudioPermission())
-                        .permission(PermissionLists.getReadMediaVisualUserSelectedPermission())
-                        .permission(PermissionLists.getWriteExternalStoragePermission())
-                        .interceptor(new PermissionInterceptor())
-                        .description(new PermissionDescription())
-                        .request(new OnPermissionCallback() {
-
-                            @Override
-                            public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                                boolean allGranted = deniedList.isEmpty();
-                                if (!allGranted) {
-                                    return;
-                                }
-                                showGrantedPermissionsToast(grantedList);
-                                getAllImagesFromGallery(false);
-                            }
-                        });
-                }
-            }, delayMillis);
+            view.postDelayed(() ->
+                XXPermissions.with(MainActivity.this)
+                    // 不适配分区存储应该这样写
+                    //.permission(PermissionLists.getManageExternalStoragePermission())
+                    // 适配分区存储应该这样写
+                    .permission(PermissionLists.getReadMediaImagesPermission())
+                    .permission(PermissionLists.getReadMediaVideoPermission())
+                    .permission(PermissionLists.getReadMediaAudioPermission())
+                    .permission(PermissionLists.getReadMediaVisualUserSelectedPermission())
+                    .permission(PermissionLists.getWriteExternalStoragePermission())
+                    .interceptor(new PermissionInterceptor())
+                    .description(new PermissionDescription())
+                    .request((grantedList, deniedList) -> {
+                        boolean allGranted = deniedList.isEmpty();
+                        if (!allGranted) {
+                            return;
+                        }
+                        showGrantedPermissionsToast(grantedList);
+                        getAllImagesFromGallery(false);
+                    })
+            , delayMillis);
 
         } else if (viewId == R.id.btn_main_request_manage_storage_permission) {
 
@@ -464,31 +407,23 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 toast(getString(R.string.demo_android_11_manage_storage_permission_hint));
             }
 
-            view.postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    XXPermissions.with(MainActivity.this)
-                        // 适配分区存储应该这样写
-                        //.permission(PermissionLists.getReadExternalStoragePermission())
-                        //.permission(PermissionLists.getWriteExternalStoragePermission())
-                        // 不适配分区存储应该这样写
-                        .permission(PermissionLists.getManageExternalStoragePermission())
-                        .interceptor(new PermissionInterceptor())
-                        .description(new PermissionDescription())
-                        .request(new OnPermissionCallback() {
-
-                            @Override
-                            public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                                boolean allGranted = deniedList.isEmpty();
-                                if (!allGranted) {
-                                    return;
-                                }
-                                showGrantedPermissionsToast(grantedList);
-                            }
-                        });
-                }
-            }, delayMillis);
+            view.postDelayed(() ->
+                XXPermissions.with(MainActivity.this)
+                    // 适配分区存储应该这样写
+                    //.permission(PermissionLists.getReadExternalStoragePermission())
+                    //.permission(PermissionLists.getWriteExternalStoragePermission())
+                    // 不适配分区存储应该这样写
+                    .permission(PermissionLists.getManageExternalStoragePermission())
+                    .interceptor(new PermissionInterceptor())
+                    .description(new PermissionDescription())
+                    .request((grantedList, deniedList) -> {
+                        boolean allGranted = deniedList.isEmpty();
+                        if (!allGranted) {
+                            return;
+                        }
+                        showGrantedPermissionsToast(grantedList);
+                    })
+            , delayMillis);
 
         } else if (viewId == R.id.btn_main_request_install_packages_permission) {
 
@@ -496,16 +431,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getRequestInstallPackagesPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_system_alert_window_permission) {
@@ -514,16 +445,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getSystemAlertWindowPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_write_settings_permission) {
@@ -532,16 +459,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getWriteSettingsPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_notification_service_permission) {
@@ -561,16 +484,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getNotificationServicePermission(channelId))
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_post_notifications_permission) {
@@ -581,46 +500,33 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 toast(getString(R.string.demo_android_13_post_notification_permission_hint));
             }
 
-            view.postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    XXPermissions.with(MainActivity.this)
-                        .permission(PermissionLists.getPostNotificationsPermission())
-                        .interceptor(new PermissionInterceptor())
-                        .description(new PermissionDescription())
-                        .request(new OnPermissionCallback() {
-
-                            @Override
-                            public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                                boolean allGranted = deniedList.isEmpty();
-                                if (!allGranted) {
-                                    return;
-                                }
-                                showGrantedPermissionsToast(grantedList);
-                            }
-                        });
-                }
-            }, delayMillis);
-
-        } else if (viewId == R.id.btn_main_request_bind_notification_listener_permission) {
-
-            XXPermissions.with(this)
-                .permission(PermissionLists.getBindNotificationListenerServicePermission(
-                    ExampleNotificationListenerService.class))
-                .interceptor(new PermissionInterceptor())
-                .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
+            view.postDelayed(() ->
+                XXPermissions.with(MainActivity.this)
+                    .permission(PermissionLists.getPostNotificationsPermission())
+                    .interceptor(new PermissionInterceptor())
+                    .description(new PermissionDescription())
+                    .request((grantedList, deniedList) -> {
                         boolean allGranted = deniedList.isEmpty();
                         if (!allGranted) {
                             return;
                         }
                         showGrantedPermissionsToast(grantedList);
-                        toggleNotificationListenerService();
+                    })
+            , delayMillis);
+
+        } else if (viewId == R.id.btn_main_request_bind_notification_listener_permission) {
+
+            XXPermissions.with(this)
+                .permission(PermissionLists.getBindNotificationListenerServicePermission(ExampleNotificationListenerService.class))
+                .interceptor(new PermissionInterceptor())
+                .description(new PermissionDescription())
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
+                    toggleNotificationListenerService();
                 });
 
         } else if (viewId == R.id.btn_main_request_usage_stats_permission) {
@@ -629,16 +535,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getPackageUsageStatsPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_schedule_exact_alarm_permission) {
@@ -647,16 +549,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getScheduleExactAlarmPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_access_notification_policy_permission) {
@@ -665,16 +563,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getAccessNotificationPolicyPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_ignore_battery_optimizations_permission) {
@@ -683,16 +577,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getRequestIgnoreBatteryOptimizationsPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_picture_in_picture_permission) {
@@ -701,16 +591,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getPictureInPicturePermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_bind_vpn_service_permission) {
@@ -719,16 +605,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getBindVpnServicePermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_full_screen_notifications_permission) {
@@ -739,30 +621,22 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 toast(getString(R.string.demo_android_14_full_screen_notifications_permission_hint));
             }
 
-            view.postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    XXPermissions.with(MainActivity.this)
-                        // 请求全屏通知权限需要携带通知权限（发送通知权限或者通知服务权限任意一个即可）同时申请
-                        .permission(PermissionLists.getPostNotificationsPermission())
-                        //.permission(PermissionLists.getNotificationServicePermission())
-                        .permission(PermissionLists.getUseFullScreenIntentPermission())
-                        .interceptor(new PermissionInterceptor())
-                        .description(new PermissionDescription())
-                        .request(new OnPermissionCallback() {
-
-                            @Override
-                            public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                                boolean allGranted = deniedList.isEmpty();
-                                if (!allGranted) {
-                                    return;
-                                }
-                                showGrantedPermissionsToast(grantedList);
-                            }
-                        });
-                }
-            }, delayMillis);
+            view.postDelayed(() ->
+                XXPermissions.with(MainActivity.this)
+                    // 请求全屏通知权限需要携带通知权限（发送通知权限或者通知服务权限任意一个即可）同时申请
+                    .permission(PermissionLists.getPostNotificationsPermission())
+                    //.permission(PermissionLists.getNotificationServicePermission())
+                    .permission(PermissionLists.getUseFullScreenIntentPermission())
+                    .interceptor(new PermissionInterceptor())
+                    .description(new PermissionDescription())
+                    .request((grantedList, deniedList) -> {
+                        boolean allGranted = deniedList.isEmpty();
+                        if (!allGranted) {
+                            return;
+                        }
+                        showGrantedPermissionsToast(grantedList);
+                    }),
+            delayMillis);
 
         } else if (viewId == R.id.btn_main_request_device_admin_permission) {
 
@@ -772,16 +646,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                                                 getString(R.string.test_device_admin_extra_add_explanation)))
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_accessibility_service_permission) {
@@ -790,16 +660,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getBindAccessibilityServicePermission(ExampleAccessibilityService.class))
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_request_manage_media_permission) {
@@ -808,50 +674,46 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getManageMediaPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
+                    }
+                    showGrantedPermissionsToast(grantedList);
 
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                        return;
+                    }
+
+                    ContentResolver contentResolver = getContentResolver();
+                    // 适配 Android 10 分区存储特性
+                    ContentValues values = new ContentValues();
+                    // 设置显示的文件名
+                    values.put(MediaStore.Images.Media.DISPLAY_NAME, "XXPermissionsLogo.png");
+                    // 生成一个新的 uri 路径
+                    Uri outputUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    if (outputUri == null) {
+                        return;
+                    }
+                    // 生成图片到本地
+                    try {
+                        Drawable drawable = ContextCompat.getDrawable(MainActivity.this, R.mipmap.ic_launcher);
+                        // w：写入模式，如果文件存在则覆盖，如果文件不存在则创建
+                        // wa：追加模式，如果文件存在则追加到文件末尾，如果文件不存在则创建
+                        OutputStream outputStream = contentResolver.openOutputStream(outputUri, "w");
+                        if (outputStream == null) {
                             return;
                         }
-                        showGrantedPermissionsToast(grantedList);
-
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                        if (!(drawable instanceof BitmapDrawable)) {
                             return;
                         }
-
-                        ContentResolver contentResolver = getContentResolver();
-                        // 适配 Android 10 分区存储特性
-                        ContentValues values = new ContentValues();
-                        // 设置显示的文件名
-                        values.put(MediaStore.Images.Media.DISPLAY_NAME, "XXPermissionsLogo.png");
-                        // 生成一个新的 uri 路径
-                        Uri outputUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                        if (outputUri == null) {
-                            return;
+                        BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+                        if (bitmapDrawable.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, outputStream)) {
+                            outputStream.flush();
                         }
-                        // 生成图片到本地
-                        try {
-                            Drawable drawable = ContextCompat.getDrawable(MainActivity.this, R.mipmap.ic_launcher);
-                            // w：写入模式，如果文件存在则覆盖，如果文件不存在则创建
-                            // wa：追加模式，如果文件存在则追加到文件末尾，如果文件不存在则创建
-                            OutputStream outputStream = contentResolver.openOutputStream(outputUri, "w");
-                            if (outputStream == null) {
-                                return;
-                            }
-                            if (!(drawable instanceof BitmapDrawable)) {
-                                return;
-                            }
-                            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
-                            if (bitmapDrawable.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, outputStream)) {
-                                outputStream.flush();
-                            }
-                            MediaStore.createWriteRequest(contentResolver, Collections.singletonList(outputUri));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        MediaStore.createWriteRequest(contentResolver, Collections.singletonList(outputUri));
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 });
 
@@ -861,17 +723,13 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getGetInstalledAppsPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
-                        getAppList();
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
+                    getAppList();
                 });
 
         } else if (viewId == R.id.btn_main_request_multiple_type_permission) {
@@ -882,16 +740,12 @@ public final class MainActivity extends AppCompatActivity implements View.OnClic
                 .permission(PermissionLists.getSystemAlertWindowPermission())
                 .interceptor(new PermissionInterceptor())
                 .description(new PermissionDescription())
-                .request(new OnPermissionCallback() {
-
-                    @Override
-                    public void onResult(@NonNull List<IPermission> grantedList, @NonNull List<IPermission> deniedList) {
-                        boolean allGranted = deniedList.isEmpty();
-                        if (!allGranted) {
-                            return;
-                        }
-                        showGrantedPermissionsToast(grantedList);
+                .request((grantedList, deniedList) -> {
+                    boolean allGranted = deniedList.isEmpty();
+                    if (!allGranted) {
+                        return;
                     }
+                    showGrantedPermissionsToast(grantedList);
                 });
 
         } else if (viewId == R.id.btn_main_start_permission_activity) {
