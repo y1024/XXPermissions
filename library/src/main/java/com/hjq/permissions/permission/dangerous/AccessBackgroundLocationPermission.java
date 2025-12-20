@@ -61,7 +61,7 @@ public final class AccessBackgroundLocationPermission extends DangerousPermissio
     @Override
     public PermissionPageType getPermissionPageType(@NonNull Context context) {
         // 后台定位权限申请页在 Android 10 还是透明的 Activity，到了 Android 11 就变成了不透明的 Activity
-        if (PermissionVersion.getCurrentVersion() == getFromAndroidVersion(context)) {
+        if (PermissionVersion.getSdkVersion() == getFromAndroidVersion(context)) {
             return PermissionPageType.TRANSPARENT_ACTIVITY;
         }
         // 后台定位权限在 HyperOS、MIUI、MagicOS、HarmonyOS、EMUI 上面一直是透明的 Activity
@@ -168,7 +168,7 @@ public final class AccessBackgroundLocationPermission extends DangerousPermissio
         // 如果您尝试仅请求 ACCESS_FINE_LOCATION，则系统会忽略该请求并在 Logcat 中记录以下错误消息：
         // ACCESS_FINE_LOCATION must be requested with ACCESS_COARSE_LOCATION
         // 官方适配文档：https://developer.android.google.cn/develop/sensors-and-location/location/permissions/runtime?hl=zh-cn#approximate-request
-        if (PermissionVersion.getTargetVersion(activity) >= PermissionVersion.ANDROID_12) {
+        if (PermissionVersion.getTargetSdkVersion(activity) >= PermissionVersion.ANDROID_12) {
             checkPermissionRegistrationStatus(permissionInfoList, PermissionNames.ACCESS_COARSE_LOCATION);
             checkPermissionRegistrationStatus(permissionInfoList, PermissionNames.ACCESS_FINE_LOCATION);
         } else {
@@ -184,7 +184,7 @@ public final class AccessBackgroundLocationPermission extends DangerousPermissio
         // 如果您尝试仅请求 ACCESS_FINE_LOCATION，则系统会忽略该请求并在 Logcat 中记录以下错误消息：
         // ACCESS_FINE_LOCATION must be requested with ACCESS_COARSE_LOCATION
         // 官方适配文档：https://developer.android.google.cn/develop/sensors-and-location/location/permissions/runtime?hl=zh-cn#approximate-request
-        if (PermissionVersion.getTargetVersion(activity) >= PermissionVersion.ANDROID_12 &&
+        if (PermissionVersion.getTargetSdkVersion(activity) >= PermissionVersion.ANDROID_12 &&
             PermissionUtils.containsPermission(requestList, PermissionNames.ACCESS_COARSE_LOCATION) &&
             !PermissionUtils.containsPermission(requestList, PermissionNames.ACCESS_FINE_LOCATION)) {
             // 申请后台定位权限可以不包含模糊定位权限，但是一定要包含精确定位权限，否则后台定位权限会无法申请

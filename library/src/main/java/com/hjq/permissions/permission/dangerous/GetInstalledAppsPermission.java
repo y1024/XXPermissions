@@ -230,7 +230,7 @@ public final class GetInstalledAppsPermission extends DangerousPermission {
         // checkPermissionRegistrationStatus(oneUiGetAppListPermission, ONE_UI_GET_APP_LIST_PERMISSION_NAME, PermissionManifestInfo.DEFAULT_MAX_SDK_VERSION);
 
         // 当前 targetSdk 必须大于 Android 11，否则停止检查
-        if (PermissionVersion.getTargetVersion(activity) < PermissionVersion.ANDROID_11) {
+        if (PermissionVersion.getTargetSdkVersion(activity) < PermissionVersion.ANDROID_11) {
             return;
         }
 

@@ -109,9 +109,9 @@ public final class AndroidManifestParser {
         Integer cookie;
 
         try {
-            if (PermissionVersion.getTargetVersion(context) >= PermissionVersion.ANDROID_9 &&
-                PermissionVersion.getCurrentVersion() >= PermissionVersion.ANDROID_9 &&
-                PermissionVersion.getCurrentVersion() < PermissionVersion.ANDROID_11) {
+            if (PermissionVersion.getTargetSdkVersion(context) >= PermissionVersion.ANDROID_9 &&
+                PermissionVersion.getSdkVersion() >= PermissionVersion.ANDROID_9 &&
+                PermissionVersion.getSdkVersion() < PermissionVersion.ANDROID_11) {
 
                 // 反射套娃操作：实测这种方式只在 Android 9.0 和 Android 10.0 有效果，在 Android 11 上面就失效了
                 Method metaGetDeclaredMethod = Class.class.getDeclaredMethod(

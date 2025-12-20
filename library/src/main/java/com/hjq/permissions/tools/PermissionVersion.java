@@ -3,6 +3,7 @@ package com.hjq.permissions.tools;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
+import androidx.annotation.NonNull;
 
 /**
  *    author : Android 轮子哥
@@ -46,16 +47,16 @@ public final class PermissionVersion {
     public static final int ANDROID_2_0 = Build.VERSION_CODES.ECLAIR;
 
     /**
-     * 获取当前 Android 版本
+     * 获取当前 SDK 版本
      */
-    public static int getCurrentVersion() {
+    public static int getSdkVersion() {
         return Build.VERSION.SDK_INT;
     }
 
     /**
-     * 获取 TargetSdk 版本
+     * 获取目标 SDK 版本
      */
-    public static int getTargetVersion(Context context) {
+    public static int getTargetSdkVersion(@NonNull Context context) {
         return context.getApplicationInfo().targetSdkVersion;
     }
 

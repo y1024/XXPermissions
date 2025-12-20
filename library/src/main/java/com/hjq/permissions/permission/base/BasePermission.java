@@ -118,7 +118,7 @@ public abstract class BasePermission implements IPermission {
     protected void checkSelfByTargetSdkVersion(@NonNull Context context) {
         int minTargetSdkVersion = getMinTargetSdkVersion(context);
         // 必须设置正确的 targetSdkVersion 才能正常检测权限
-        if (PermissionVersion.getTargetVersion(context) >= minTargetSdkVersion) {
+        if (PermissionVersion.getTargetSdkVersion(context) >= minTargetSdkVersion) {
             return;
         }
 
@@ -258,7 +258,7 @@ public abstract class BasePermission implements IPermission {
         // Android 12L 和 Android 13 版本经过测试不会出现这个问题，证明 Google 在新版本上已经修复了这个问题
         // 但是对于 Android 12 仍是一个历史遗留问题，这是我们所有 Android App 开发者不得不面对的一个事情
         // issue 地址：https://github.com/getActivity/XXPermissions/issues/133
-        if (PermissionVersion.getCurrentVersion() == PermissionVersion.ANDROID_12) {
+        if (PermissionVersion.getSdkVersion() == PermissionVersion.ANDROID_12) {
             try {
                 // 另外针对这个问题，我还给谷歌的 AndroidX 项目无偿提供了解决方案，目前 Merge Request 已被合入主分支
                 // 我相信通过这一举措，将解决全球近 10 亿台 Android 12 设备出现的内存泄露问题

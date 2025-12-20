@@ -179,7 +179,7 @@ public final class NotificationServicePermission extends SpecialPermission {
                                            @Nullable PermissionManifestInfo currentPermissionInfo) {
         super.checkSelfByManifestFile(activity, requestList, manifestInfo, permissionInfoList, currentPermissionInfo);
 
-        if (PermissionVersion.getTargetVersion(activity) >= PermissionVersion.ANDROID_13) {
+        if (PermissionVersion.getTargetSdkVersion(activity) >= PermissionVersion.ANDROID_13) {
             // 如果当前项目已经适配了 Android 13，则需要在清单文件加入 POST_NOTIFICATIONS 权限，否则会导致无法申请通知栏权限
             PermissionManifestInfo postNotificationsPermission = findPermissionInfoByList(permissionInfoList, PermissionNames.POST_NOTIFICATIONS);
             checkPermissionRegistrationStatus(postNotificationsPermission, PermissionNames.POST_NOTIFICATIONS, PermissionManifestInfo.DEFAULT_MAX_SDK_VERSION);

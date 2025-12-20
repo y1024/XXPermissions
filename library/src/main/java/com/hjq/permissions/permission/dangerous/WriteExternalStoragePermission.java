@@ -71,7 +71,7 @@ public final class WriteExternalStoragePermission extends DangerousPermission {
 
     @Override
     protected boolean isGrantedPermissionByStandardVersion(@NonNull Context context, boolean skipRequest) {
-        if (PermissionVersion.isAndroid11() && PermissionVersion.getTargetVersion(context) >= PermissionVersion.ANDROID_11) {
+        if (PermissionVersion.isAndroid11() && PermissionVersion.getTargetSdkVersion(context) >= PermissionVersion.ANDROID_11) {
             // 这里补充一下这样写的具体原因：
             // 1. 当 targetSdk >= Android 11 并且在此版本及之上申请 WRITE_EXTERNAL_STORAGE，虽然可以弹出授权框，但是没有什么实际作用
             //    相关文档地址：https://developer.android.google.cn/reference/android/Manifest.permission#WRITE_EXTERNAL_STORAGE
@@ -85,7 +85,7 @@ public final class WriteExternalStoragePermission extends DangerousPermission {
         }
         // 如果当前项目 targetSdk > Android 10 并且运行在 Android 10 的设备上面，
         // 但是在适配了分区存储的情况下，就直接返回 true 给外层（表示授予了该权限）
-        if (PermissionVersion.getTargetVersion(context) >= PermissionVersion.ANDROID_10 &&
+        if (PermissionVersion.getTargetSdkVersion(context) >= PermissionVersion.ANDROID_10 &&
                 PermissionVersion.isAndroid10() && !Environment.isExternalStorageLegacy()) {
             return true;
         }
@@ -94,12 +94,12 @@ public final class WriteExternalStoragePermission extends DangerousPermission {
 
     @Override
     protected boolean isDoNotAskAgainPermissionByStandardVersion(@NonNull Activity activity) {
-        if (PermissionVersion.isAndroid11() && PermissionVersion.getTargetVersion(activity) >= PermissionVersion.ANDROID_11) {
+        if (PermissionVersion.isAndroid11() && PermissionVersion.getTargetSdkVersion(activity) >= PermissionVersion.ANDROID_11) {
             return false;
         }
         // 如果当前项目 targetSdk > Android 10 并且运行在 Android 10 的设备上面，
         // 但是在适配了分区存储的情况下，就直接返回 false 给外层（表示没有勾选不再询问）
-        if (PermissionVersion.getTargetVersion(activity) >= PermissionVersion.ANDROID_10 &&
+        if (PermissionVersion.getTargetSdkVersion(activity) >= PermissionVersion.ANDROID_10 &&
                 PermissionVersion.isAndroid10() && !Environment.isExternalStorageLegacy()) {
             return false;
         }
@@ -125,13 +125,13 @@ public final class WriteExternalStoragePermission extends DangerousPermission {
         }
 
         // 如果当前 targetSdk 版本比较低，甚至还没有到分区存储的版本，就直接跳过后面的检查，只检查当前权限有没有在清单文件中静态注册
-        if (PermissionVersion.getTargetVersion(activity) < PermissionVersion.ANDROID_10) {
+        if (PermissionVersion.getTargetSdkVersion(activity) < PermissionVersion.ANDROID_10) {
             checkPermissionRegistrationStatus(permissionInfoList, getPermissionName());
             return;
         }
 
         // 判断：当前项目是否适配了Android 11，并且还在清单文件中是否注册了 MANAGE_EXTERNAL_STORAGE 权限
-        if (PermissionVersion.getTargetVersion(activity) >= PermissionVersion.ANDROID_11 &&
+        if (PermissionVersion.getTargetSdkVersion(activity) >= PermissionVersion.ANDROID_11 &&
             findPermissionInfoByList(permissionInfoList, PermissionNames.MANAGE_EXTERNAL_STORAGE) != null) {
             // 如果有的话，那么 maxSdkVersion 就必须是 Android 10 及以上的版本
             checkPermissionRegistrationStatus(permissionInfoList, getPermissionName(), PermissionVersion.ANDROID_10);
@@ -149,7 +149,7 @@ public final class WriteExternalStoragePermission extends DangerousPermission {
             return;
         }
 
-        int targetSdkVersion = PermissionVersion.getTargetVersion(activity);
+        int targetSdkVersion = PermissionVersion.getTargetSdkVersion(activity);
         // 是否适配了分区存储（默认是没有的）
         boolean scopedStorage = false;
         if (applicationInfo.metaDataInfoList != null) {
