@@ -47,7 +47,7 @@ public final class PermissionSettingPage {
      * 获取三星权限设置意图
      */
     @NonNull
-    public static Intent getOneUiPermissionPageIntent(Context context) {
+    public static Intent getOneUiPermissionPageIntent(@NonNull Context context) {
         Intent intent = new Intent();
         intent.setClassName("com.android.settings", "com.android.settings.Settings$AppOpsDetailsActivity");
         Bundle extraShowFragmentArguments = new Bundle();
@@ -63,7 +63,7 @@ public final class PermissionSettingPage {
      * 返回华为手机管家 App 意图
      */
     @NonNull
-    public static List<Intent> getHuaWeiMobileManagerAppIntent(Context context) {
+    public static List<Intent> getHuaWeiMobileManagerAppIntent(@NonNull Context context) {
         List<Intent> intentList = new ArrayList<>(1);
         Intent intent;
 
@@ -84,7 +84,7 @@ public final class PermissionSettingPage {
      * 返回小米手机管家 App 意图
      */
     @NonNull
-    public static List<Intent> getXiaoMiMobileManagerAppIntent(Context context) {
+    public static List<Intent> getXiaoMiMobileManagerAppIntent(@NonNull Context context) {
         List<Intent> intentList = new ArrayList<>(2 + XIAO_MI_MOBILE_MANAGER_APP_PACKAGE_NAMES.length);
         Intent intent;
 
@@ -114,7 +114,7 @@ public final class PermissionSettingPage {
      * 获取 oppo 安全中心 App 意图
      */
     @NonNull
-    public static List<Intent> getOppoSafeCenterAppIntent(Context context) {
+    public static List<Intent> getOppoSafeCenterAppIntent(@NonNull Context context) {
         List<Intent> intentList = new ArrayList<>(OPPO_SAFE_CENTER_APP_PACKAGE_NAMES.length);
 
         PackageManager packageManager = context.getPackageManager();
@@ -134,7 +134,7 @@ public final class PermissionSettingPage {
      * 获取 vivo 管家手机意图
      */
     @NonNull
-    public static List<Intent> getVivoMobileManagerAppIntent(Context context) {
+    public static List<Intent> getVivoMobileManagerAppIntent(@NonNull Context context) {
         List<Intent> intentList = new ArrayList<>(VIVO_MOBILE_MANAGER_APP_PACKAGE_NAMES.length);
 
         PackageManager packageManager = context.getPackageManager();
@@ -154,7 +154,7 @@ public final class PermissionSettingPage {
      * 获取锤子手机安全中心 App
      */
     @NonNull
-    public static List<Intent> getSmartisanSecurityCenterAppIntent(Context context) {
+    public static List<Intent> getSmartisanSecurityCenterAppIntent(@NonNull Context context) {
         List<Intent> intentList = new ArrayList<>(SMARTISAN_SECURITY_CENTER_APP_PACKAGE_NAMES.length);
 
         PackageManager packageManager = context.getPackageManager();

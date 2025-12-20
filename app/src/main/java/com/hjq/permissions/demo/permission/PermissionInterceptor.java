@@ -256,7 +256,7 @@ public final class PermissionInterceptor implements OnPermissionInterceptor {
      * 获取后台权限的《始终允许》选项的文案
      */
     @NonNull
-    private String getBackgroundPermissionOptionLabel(Context context) {
+    private String getBackgroundPermissionOptionLabel(@NonNull Context context) {
         PackageManager packageManager = context.getPackageManager();
         if (packageManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             CharSequence backgroundPermissionOptionLabel = packageManager.getBackgroundPermissionOptionLabel();
