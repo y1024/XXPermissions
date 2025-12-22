@@ -132,11 +132,11 @@ XXPermissions.with(this)
             // 判断请求失败的权限是否被用户勾选了不再询问的选项
             boolean doNotAskAgain = XXPermissions.isDoNotAskAgainPermissions(activity, deniedList);
             // 在这里处理权限请求失败的逻辑
-            ......
+            // ......
             return;
         }
         // 在这里处理权限请求成功的逻辑
-        ......
+        // ......
     });
 ```
 

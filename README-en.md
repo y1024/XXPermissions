@@ -129,11 +129,11 @@ XXPermissions.with(this)
                 // Determine whether the permissions that failed requests have been checked by the user to no longer ask
                 boolean doNotAskAgain = XXPermissions.isDoNotAskAgainPermissions(activity, deniedList);
                 // The logic for failing to handle permission requests here
-                ......
+                // ......
                 return;
             }
             // The logic for handling permission requests here is successful
-            ......
+            // ......
         }
     });
 ```
