@@ -276,7 +276,7 @@ public final class GetInstalledAppsPermission extends DangerousPermission {
             }
         } catch (PackageManager.NameNotFoundException e) {
             // 没有这个权限时会抛出：android.content.pm.PackageManager$NameNotFoundException: com.android.permission.GET_INSTALLED_APPS
-            e.printStackTrace();
+            // e.printStackTrace();
         }
 
         try {
@@ -286,7 +286,7 @@ public final class GetInstalledAppsPermission extends DangerousPermission {
             return Settings.Secure.getInt(context.getContentResolver(), "oem_installed_apps_runtime_permission_enable") == 1;
         } catch (Settings.SettingNotFoundException e) {
             // 没有这个系统属性时会抛出：android.provider.Settings$SettingNotFoundException: oem_installed_apps_runtime_permission_enable
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return false;
     }
