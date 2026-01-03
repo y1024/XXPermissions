@@ -141,7 +141,6 @@ XXPermissions.with(this)
 * Kotlin code example
 
 ```kotlin
-
 XXPermissions.with(this)
     // Request multiple permission
     .permission(PermissionLists.getRecordAudioPermission())

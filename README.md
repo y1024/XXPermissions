@@ -143,7 +143,6 @@ XXPermissions.with(this)
 * Kotlin 用法示例
 
 ```kotlin
-
 XXPermissions.with(this)
     // 申请多个权限
     .permission(PermissionLists.getRecordAudioPermission())
