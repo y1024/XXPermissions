@@ -28,7 +28,7 @@ dependencies {
     // noinspection GradleCompatible
     implementation 'androidx.fragment:fragment:1.0.0'
     // 设备兼容框架：https://github.com/getActivity/DeviceCompat
-    implementation 'com.github.getActivity:DeviceCompat:2.5'
+    implementation 'com.github.getActivity:DeviceCompat:2.6'
 }
 
 publishing {
