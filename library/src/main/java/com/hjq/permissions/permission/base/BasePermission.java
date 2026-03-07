@@ -361,7 +361,7 @@ public abstract class BasePermission implements IPermission {
             int opValue;
             try {
                 Field opField = appOpsClass.getDeclaredField(opName);
-                opValue = (int) opField.get(Integer.class);
+                opValue = opField.getInt(null);
             } catch (NoSuchFieldException e) {
                 opValue = opDefaultValue;
             }
