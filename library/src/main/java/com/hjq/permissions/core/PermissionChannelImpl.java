@@ -268,6 +268,8 @@ public abstract class PermissionChannelImpl implements IFragmentCallback {
         if (PermissionUtils.isActivityUnavailable(activity)) {
             return;
         }
+        // 先取消旧的任务，避免重复回调
+        cancelTask();
         // 延迟处理权限请求的结果
         sendTask(this::handlerPermissionCallback, PermissionApi.getMaxWaitTimeByPermissions(activity, getPermissionRequestList()));
     }
