@@ -80,7 +80,7 @@ public final class XXPermissions {
     public static OnPermissionInterceptor getPermissionInterceptor() {
         if (sPermissionInterceptorClass != null) {
             try {
-                return sPermissionInterceptorClass.newInstance();
+                return sPermissionInterceptorClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -105,7 +105,7 @@ public final class XXPermissions {
     public static OnPermissionDescription getPermissionDescription() {
         if (sPermissionDescriptionClass != null) {
             try {
-                return sPermissionDescriptionClass.newInstance();
+                return sPermissionDescriptionClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 e.printStackTrace();
             }
