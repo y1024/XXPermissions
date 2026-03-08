@@ -126,9 +126,6 @@ public final class PermissionUtils {
         if (s1 == null || s2 == null) {
             return false;
         }
-        if (s1.hashCode() == s2.hashCode()) {
-            return true;
-        }
         int length = s1.length();
         if (length != s2.length()) {
             return false;
@@ -148,9 +145,6 @@ public final class PermissionUtils {
     public static boolean reverseEqualsString(@Nullable String s1, @Nullable String s2) {
         if (s1 == null || s2 == null) {
             return false;
-        }
-        if (s1.hashCode() == s2.hashCode()) {
-            return true;
         }
         int length = s1.length();
         if (length != s2.length()) {
