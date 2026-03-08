@@ -84,6 +84,7 @@ public final class ActivityOrientationManager {
         }
         // 为什么这里不用跟上面一样 try catch ？因为这里是把 Activity 方向取消固定，只有设置横屏或竖屏的时候才可能触发 crash
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        ACTIVITY_ORIENTATION_MAP.remove(getIntKeyByActivity(activity));
     }
 
     /**
