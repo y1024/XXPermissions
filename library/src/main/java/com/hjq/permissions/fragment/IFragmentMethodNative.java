@@ -29,9 +29,6 @@ public interface IFragmentMethodNative<A extends Activity> extends IStartActivit
     /** 设置参数集 */
     void setArguments(@Nullable Bundle arguments);
 
-    /** 设置是否保存实例，如果设置保存，则不会因为屏幕方向或配置变化而重新创建 */
-    void setRetainInstance(boolean retainInstance);
-
     /** 当前 Fragment 是否已添加绑定 */
     boolean isAdded();
 

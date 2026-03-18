@@ -39,7 +39,6 @@ public final class PermissionFragmentFactoryByAndroid extends PermissionFragment
         int maxRequestCode = PermissionRequestCodeManager.REQUEST_CODE_LIMIT_HIGH_VALUE;
         int requestCode = PermissionRequestCodeManager.generateRandomRequestCode(maxRequestCode);
         fragment.setArguments(generatePermissionArguments(permissions, requestCode));
-        fragment.setRetainInstance(true);
         fragment.setNonSystemRestartMark(true);
         fragment.setPermissionFragmentCallback(callback);
         fragment.commitFragmentAttach(getFragmentManager());
